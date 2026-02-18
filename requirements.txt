@@ -5,3 +5,4 @@ razorpay
 gunicorn
 reportlab
 pillow
+xhtml2pdf
