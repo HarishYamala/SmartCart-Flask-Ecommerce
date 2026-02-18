@@ -2,7 +2,5 @@ Flask
 Flask-Mail
 bcrypt
 razorpay
-gunicorn
-reportlab
-pillow
 xhtml2pdf
+reportlab
