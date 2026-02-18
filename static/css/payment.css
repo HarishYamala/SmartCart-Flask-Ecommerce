@@ -1,0 +1,100 @@
+.payment-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 15px; /* added side padding */
+    background: #f3f5f9;
+    min-height: 80vh;
+}
+
+.payment-card {
+    background: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px; /* instead of fixed width */
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.icon i {
+    font-size: 50px;
+    color: #1a33c7;
+    margin-bottom: 15px;
+}
+
+.payment-card h2 {
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.amount-box {
+    background: #eef2ff;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.pay-btn {
+    background: #1a33c7;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+.pay-btn:hover {
+    background: #1426a8;
+}
+
+.trust-text {
+    margin-top: 15px;
+    color: #777;
+    font-size: 14px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    .payment-card {
+        padding: 30px;
+    }
+
+    .icon i {
+        font-size: 40px;
+    }
+
+    .amount-box {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .payment-card {
+        padding: 25px;
+    }
+
+    .payment-card h2 {
+        font-size: 20px;
+    }
+
+    .pay-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .trust-text {
+        font-size: 12px;
+    }
+}

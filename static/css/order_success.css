@@ -1,0 +1,135 @@
+.success-wrapper {
+    background: #f4f6fb;
+    padding: 50px 15px; /* added side padding */
+}
+
+.success-card {
+    width: 90%;
+    max-width: 900px; /* instead of fixed 70% */
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.success-icon {
+    text-align: center;
+    font-size: 50px;
+    color: green;
+}
+
+.success-card h2 {
+    text-align: center;
+    margin-top: 10px;
+    color: #1a33c7;
+}
+
+.thank-you {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* ORDER DETAILS */
+.order-details {
+    background: #f8f9ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    line-height: 1.7;
+}
+
+/* TABLE */
+.items-list {
+    overflow-x: auto; /* important */
+}
+
+.items-list table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 500px; /* prevents ugly shrink */
+}
+
+.items-list th,
+.items-list td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.items-list th {
+    background: #f0f2ff;
+}
+
+/* BUTTON GROUP */
+.btn-group {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    text-align: center;
+    min-width: 150px;
+}
+
+.primary-btn {
+    background: #1a33c7;
+    color: white;
+}
+
+.secondary-btn {
+    background: #0077ff;
+    color: white;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover {
+    opacity: 0.85;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    .success-card {
+        padding: 25px;
+    }
+
+    .success-icon {
+        font-size: 40px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .success-card {
+        padding: 20px;
+    }
+
+    .success-card h2 {
+        font-size: 20px;
+    }
+
+    .items-list th,
+    .items-list td {
+        padding: 8px;
+        font-size: 13px;
+    }
+}

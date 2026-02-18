@@ -1,0 +1,50 @@
+{% extends "user/base.html" %}
+
+{% block title %}SmartCart - Register{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+
+    <div class="auth-container">
+        <div class="auth-box">
+
+            <h2>Create Account</h2>
+            <p>Enter your email to receive OTP</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="flash-msg">{{ message }}</div>
+              {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('user_register') }}">
+
+                <input type="email"
+                       name="email"
+                       placeholder="Email Address"
+                       required>
+
+                <button type="submit">
+                    Send OTP
+                </button>
+
+            </form>
+
+            <div class="auth-link">
+                <a href="{{ url_for('user_login') }}">
+                    Already have an account? Login
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

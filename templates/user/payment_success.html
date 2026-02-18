@@ -1,0 +1,47 @@
+{% extends "user/base.html" %}
+
+{% block title %}Payment Successful - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/order_success.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="success-wrapper">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            <i class="fa fa-check-circle"></i>
+        </div>
+
+        <h2>Payment Successful!</h2>
+
+        <p class="thank-you">
+            Thank you for your purchase 🎉
+        </p>
+
+        <div class="order-details">
+            <p><strong>Payment ID:</strong> {{ payment_id }}</p>
+            <p><strong>Order ID:</strong> {{ order_id }}</p>
+        </div>
+
+        <div class="btn-group">
+            <a href="{{ url_for('user_products') }}"
+               class="primary-btn">
+                Continue Shopping
+            </a>
+
+            <a href="{{ url_for('user_orders') }}"
+               class="secondary-btn">
+                View Orders
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

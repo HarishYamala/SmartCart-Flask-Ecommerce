@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #eef1f6;
+}
+
+/* ALERT */
+.alert {
+    margin: 20px auto;
+    width: 90%;
+    max-width: 800px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.alert.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* DASHBOARD CARD */
+.dashboard-card {
+    background: white;
+    width: 90%;
+    max-width: 450px; /* instead of fixed width */
+    margin: 80px auto;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.profile-icon {
+    background: #e3e8ff;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 35px;
+    color: #1a3dc1;
+}
+
+.dashboard-card h2 {
+    margin: 10px 0;
+}
+
+.shop-btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 25px;
+    background: linear-gradient(45deg, #3b5bff, #5c7cfa);
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    .dashboard-card {
+        padding: 30px;
+        margin: 60px auto;
+    }
+
+    .profile-icon {
+        width: 75px;
+        height: 75px;
+        font-size: 28px;
+    }
+
+    .shop-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .dashboard-card {
+        padding: 25px;
+        margin: 40px auto;
+    }
+
+    .profile-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 24px;
+    }
+
+    .dashboard-card h2 {
+        font-size: 20px;
+    }
+
+    .shop-btn {
+        width: 100%;
+        border-radius: 10px;
+    }
+}

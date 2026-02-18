@@ -1,0 +1,82 @@
+{% extends "admin/base.html" %}
+{% block title %}Admin Login{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-center"
+     style="min-height:80vh;">
+
+    <div class="card shadow-sm"
+         style="max-width:420px; width:100%; border-radius:15px;">
+
+        <div class="card-body p-4">
+
+            <h3 class="text-center fw-bold">
+                Welcome Back
+            </h3>
+
+            <p class="text-center text-muted mb-4">
+                Login to your SmartCart Admin panel
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="alert alert-danger text-center">
+                    {{ message }}
+                </div>
+              {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="/admin-login">
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <input type="email"
+                           name="email"
+                           class="form-control form-control-lg"
+                           placeholder="Email Address"
+                           required>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-2">
+                    <input type="password"
+                           name="password"
+                           class="form-control form-control-lg"
+                           placeholder="Password"
+                           required>
+                </div>
+
+                <!-- Forgot Password RIGHT SIDE -->
+                <div class="text-end mb-3">
+                    <a href="/admin-forgot-password"
+                       class="text-decoration-none small">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <!-- Login Button -->
+                <button class="btn btn-primary w-100 btn-lg">
+                    Login
+                </button>
+
+            </form>
+
+            <!-- Bottom Links -->
+            <div class="text-center mt-4">
+                <a href="/admin-signup"
+                   class="text-decoration-none">
+                    Create Admin Account
+                </a>
+                |
+                <a href="/"
+                   class="text-decoration-none">
+                    User Login
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

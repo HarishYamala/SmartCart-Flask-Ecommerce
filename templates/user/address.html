@@ -1,0 +1,126 @@
+{% extends "user/base.html" %}
+
+{% block title %}Add Delivery Address{% endblock %}
+
+{% block extra_css %}
+<style>
+.address-wrapper {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 15px;
+    background: #f5f6fa;
+}
+
+.address-card {
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.address-card h2 {
+    text-align: center;
+    color: #1e3dd6;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.address-card input,
+.address-card textarea {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1.5px solid #1e3dd6;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.address-card input:focus,
+.address-card textarea:focus {
+    border-color: #0f2bb8;
+    box-shadow: 0 0 5px rgba(30, 61, 214, 0.2);
+}
+
+.address-card textarea {
+    resize: none;
+    height: 80px;
+}
+
+.address-card button {
+    width: 100%;
+    padding: 12px;
+    background: #1e3dd6;
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.address-card button:hover {
+    background: #162fb3;
+}
+
+@media(max-width: 500px) {
+    .address-card {
+        padding: 20px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="address-wrapper">
+    <div class="address-card">
+
+        <h2>Add Delivery Address</h2>
+
+        <form method="POST">
+
+            <input type="text" name="full_name"
+                   placeholder="Full Name"
+                   value="{{ address.full_name if address }}"
+                   required>
+
+            <input type="text" name="phone"
+                   placeholder="Phone Number"
+                   value="{{ address.phone if address }}"
+                   required>
+
+            <input type="text" name="pincode"
+                   placeholder="Pincode"
+                   value="{{ address.pincode if address }}"
+                   required>
+
+            <input type="text" name="state"
+                   placeholder="State"
+                   value="{{ address.state if address }}"
+                   required>
+
+            <input type="text" name="city"
+                   placeholder="City"
+                   value="{{ address.city if address }}"
+                   required>
+
+            <textarea name="full_address"
+                      placeholder="Full Address"
+                      required>{{ address.full_address if address }}</textarea>
+
+            <button type="submit">
+                Save & Continue
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}

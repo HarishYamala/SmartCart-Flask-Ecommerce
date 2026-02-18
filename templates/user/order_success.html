@@ -1,0 +1,76 @@
+{% extends "user/base.html" %}
+
+{% block title %}Order Successful - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/order_success.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="success-wrapper">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+            <i class="fa fa-circle-check"></i>
+        </div>
+
+        <h2>🎉 Your Order is Confirmed!</h2>
+
+        <p class="thank-you">
+            Thank you for shopping with <strong>SmartCart</strong>.
+        </p>
+
+        <div class="order-details">
+            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+            <p><strong>Payment ID:</strong> {{ order.razorpay_payment_id }}</p>
+            <p><strong>Amount Paid:</strong> ₹{{ order.amount }}</p>
+            <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+        </div>
+
+        <div class="items-list">
+            <h3>Order Summary</h3>
+
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price (₹)</th>
+                </tr>
+
+                {% for it in items %}
+                <tr>
+                    <td>{{ it.product_name }}</td>
+                    <td>{{ it.quantity }}</td>
+                    <td>{{ it.price }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="btn-group">
+
+            <a href="{{ url_for('user_products') }}"
+               class="primary-btn">
+                Continue Shopping
+            </a>
+
+            <a href="{{ url_for('my_orders') }}"
+               class="secondary-btn">
+                View My Orders
+            </a>
+
+            <a href="{{ url_for('download_invoice', order_id=order.order_id) }}"
+               class="secondary-btn">
+                Download Invoice (PDF)
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

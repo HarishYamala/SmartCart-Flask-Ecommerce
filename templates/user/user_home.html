@@ -1,0 +1,37 @@
+{% extends "user/base.html" %}
+
+{% block title %}SmartCart - Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- SUCCESS MESSAGE -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert m-3 alert-{{ category }}">
+          {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<!-- USER CARD -->
+<div class="dashboard-card">
+    <div class="profile-icon">
+        <i class="fa fa-user"></i>
+    </div>
+
+    <h2>{{ user_name }} 👋</h2>
+    <p>Welcome to SmartCart User Panel</p>
+
+    <a href="{{ url_for('user_products') }}" class="shop-btn">
+        <i class="fa fa-store"></i> Shop Now
+    </a>
+</div>
+
+{% endblock %}

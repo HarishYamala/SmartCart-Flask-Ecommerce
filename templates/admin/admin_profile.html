@@ -1,0 +1,91 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Admin Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-circle"></i> Admin Profile
+                    </h5>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- Profile Image -->
+                    <div class="text-center mb-4">
+                        {% if admin.profile_image %}
+                            <img src="{{ url_for('static', filename='uploads/admin_profiles/' ~ admin.profile_image) }}"
+                                 class="rounded-circle border"
+                                 width="130" height="130">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/default_avatar.png') }}"
+                                 class="rounded-circle border"
+                                 width="130" height="130">
+                        {% endif %}
+                    </div>
+
+                    <!-- Profile Update Form -->
+                    <form method="POST" action="/admin/profile" enctype="multipart/form-data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="name"
+                                   value="{{ admin.name }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="email"
+                                   value="{{ admin.email }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                New Password
+                                <small class="text-muted">(leave blank to keep current)</small>
+                            </label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="password">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Update Profile Image
+                                <small class="text-muted">(optional)</small>
+                            </label>
+                            <input type="file"
+                                   class="form-control"
+                                   name="profile_image"
+                                   accept="image/*">
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/admin-dashboard" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Update Profile
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

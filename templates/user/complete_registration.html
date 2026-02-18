@@ -1,0 +1,61 @@
+{% extends "user/base.html" %}
+
+{% block title %}Complete Registration - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper">
+
+    <div class="auth-container">
+        <div class="auth-box">
+
+            <h2>Complete Registration</h2>
+            <p>Enter your details to create your account</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% for category, message in messages %}
+                <div class="flash-msg">{{ message }}</div>
+              {% endfor %}
+            {% endwith %}
+
+            <form method="POST"
+                  action="{{ url_for('complete_registration') }}">
+
+                <input type="text"
+                       name="name"
+                       placeholder="Full Name"
+                       required>
+
+                <input type="text"
+                       name="mobile"
+                       placeholder="Mobile Number"
+                       required>
+
+                <input type="password"
+                       name="password"
+                       placeholder="Create Password"
+                       required>
+
+                <button type="submit">
+                    Create Account
+                </button>
+
+            </form>
+
+            <div class="auth-link">
+                <a href="{{ url_for('user_login') }}">
+                    Back to Login
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

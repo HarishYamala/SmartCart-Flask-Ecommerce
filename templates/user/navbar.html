@@ -1,0 +1,71 @@
+<div class="navbar">
+
+    <!-- LOGO -->
+    <div class="logo">
+        <a href="{{ url_for('user_home') }}">SmartCart</a>
+    </div>
+
+    {% if session.get('user_id') %}
+
+    <!-- SEARCH BAR (ONLY AFTER LOGIN) -->
+    <form class="search-bar"
+          action="{{ url_for('user_products') }}"
+          method="GET">
+
+        <input type="text"
+               name="search"
+               placeholder="Search products..."
+               value="{{ request.args.get('search', '') }}">
+
+        <button type="submit">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+
+    {% endif %}
+
+    <!-- RIGHT SIDE ICONS -->
+    <div class="nav-icons">
+
+        {% if session.get('user_id') %}
+
+            <a href="{{ url_for('user_home') }}" class="icon-circle">
+                <i class="fa fa-user"></i>
+            </a>
+
+            <a href="{{ url_for('view_cart') }}" class="icon-circle cart-icon">
+                <i class="fa fa-shopping-cart"></i>
+                {% if session.get('cart') %}
+                    <span class="cart-count">
+                        {{ session['cart']|length }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a href="/user/my-orders" class="icon-circle">
+                <i class="fa fa-box"></i>
+            </a>
+
+            <a href="/user-logout" class="icon-circle">
+                <i class="fa fa-sign-out-alt"></i>
+            </a>
+
+        {% else %}
+
+            <a href="{{ url_for('about') }}" class="icon-circle">
+                <i class="fa fa-info-circle"></i>
+            </a>
+
+            <a href="{{ url_for('contact') }}" class="icon-circle">
+                <i class="fa fa-envelope"></i>
+            </a>
+
+            <a href="/" class="icon-circle">
+                <i class="fa fa-sign-in-alt"></i>
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>

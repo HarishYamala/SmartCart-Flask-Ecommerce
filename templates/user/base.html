@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- 🔥 REQUIRED FOR RESPONSIVENESS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}SmartCart{% endblock %}</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/common.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- 🔵 Navbar -->
+    {% include 'user/navbar.html' %}
+
+    <!-- 🔵 Main Content -->
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- 🔵 Footer -->
+    {% include 'user/footer.html' %}
+
+    <!-- 🔵 Page Specific JS -->
+    {% block extra_js %}{% endblock %}
+
+</body>
+</html>

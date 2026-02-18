@@ -1,0 +1,121 @@
+{% extends "user/base.html" %}
+
+{% block title %}{{ product.name }} - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/product_details.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PRODUCT SECTION ================= -->
+<div class="product-container">
+
+    <!-- IMAGE -->
+    <div class="image-section">
+        <img src="{{ url_for('static', filename='uploads/product_images/' + product.image) }}"
+             alt="{{ product.name }}">
+    </div>
+
+    <!-- DETAILS -->
+    <div class="details-section">
+
+        <h1>{{ product.name }}</h1>
+        <p class="brand">Brand: SmartCart Brand</p>
+
+        <div class="rating-box">
+            <span class="rating">4.2 ★</span>
+            <span class="rating-text">90,828 Ratings & 50,058 Reviews</span>
+        </div>
+
+        <!-- PRICE BOX -->
+        <div class="price-box">
+            <p class="mrp">
+                M.R.P: <span>₹{{ product.price + 2000 }}</span>
+            </p>
+            <h2>₹{{ product.price }}</h2>
+            <p class="save">You Save ₹2000</p>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="features">
+            <div>
+                <i class="fa fa-rotate-left"></i>
+                <p>10 Days Return</p>
+            </div>
+            <div>
+                <i class="fa fa-truck"></i>
+                <p>Fast Delivery</p>
+            </div>
+        </div>
+
+        <!-- STOCK -->
+        <p class="stock">
+            ✔ In Stock ({{ product.stock }})
+        </p>
+
+        <!-- BUTTONS -->
+        <div class="buttons">
+            <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}"
+                  method="POST">
+                <button class="add-btn">
+                    ⚡ Add to Cart
+                </button>
+            </form>
+
+            <a href="{{ url_for('view_cart') }}"
+               class="go-btn">
+                🛒 Go to Cart
+            </a>
+        </div>
+
+        <a href="{{ url_for('user_products') }}"
+           class="continue-btn">
+            Continue Shopping
+        </a>
+
+    </div>
+</div>
+
+<!-- ================= RATINGS SECTION ================= -->
+<div class="ratings-section">
+    <h2>Product Ratings & Reviews</h2>
+
+    <div class="rating-summary">
+        <div class="left">
+            <h1>4.2</h1>
+            <p>90828 Ratings</p>
+            <p>50058 Reviews</p>
+        </div>
+
+        <div class="right">
+            <div class="bar">
+                <span>Excellent</span>
+                <div class="progress green"></div>
+            </div>
+
+            <div class="bar">
+                <span>Very Good</span>
+                <div class="progress green short"></div>
+            </div>
+
+            <div class="bar">
+                <span>Good</span>
+                <div class="progress yellow tiny"></div>
+            </div>
+
+            <div class="bar">
+                <span>Average</span>
+                <div class="progress"></div>
+            </div>
+
+            <div class="bar">
+                <span>Poor</span>
+                <div class="progress red tiny"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

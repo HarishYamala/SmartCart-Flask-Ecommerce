@@ -1,0 +1,207 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #eef1f6;
+}
+
+/* PRODUCT CONTAINER */
+.product-container {
+    display: flex;
+    gap: 40px;
+    padding: 40px;
+    background: white;
+    margin: 30px auto;
+    width: 90%;
+    max-width: 1200px;
+    border-radius: 20px;
+    flex-wrap: wrap; /* important */
+}
+
+/* IMAGE */
+.image-section {
+    flex: 1 1 350px;
+    text-align: center;
+}
+
+.image-section img {
+    width: 100%;
+    max-width: 400px;
+    object-fit: contain;
+}
+
+/* DETAILS */
+.details-section {
+    flex: 1 1 400px;
+}
+
+/* RATING */
+.rating-box {
+    margin: 10px 0;
+}
+
+.rating {
+    background: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+/* PRICE */
+.price-box {
+    background: #f3e9e9;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.mrp span {
+    text-decoration: line-through;
+}
+
+.save {
+    color: green;
+}
+
+/* FEATURES */
+.features {
+    display: flex;
+    gap: 40px;
+    margin: 20px 0;
+    flex-wrap: wrap; /* important */
+}
+
+.features div {
+    text-align: center;
+    flex: 1 1 120px;
+}
+
+/* STOCK */
+.stock {
+    background: #d4edda;
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: green;
+    font-weight: bold;
+}
+
+/* BUTTONS */
+.buttons {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.add-btn {
+    background: orange;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.go-btn {
+    background: #1a3dc1;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.continue-btn {
+    display: block;
+    background: green;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    width: 100%;
+    max-width: 300px;
+}
+
+/* RATINGS SECTION */
+.ratings-section {
+    width: 90%;
+    max-width: 1200px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+}
+
+.rating-summary {
+    display: flex;
+    gap: 50px;
+    flex-wrap: wrap; /* important */
+}
+
+.bar {
+    margin: 10px 0;
+}
+
+.progress {
+    height: 8px;
+    background: #ddd;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.progress.green { background: green; width: 80%; }
+.progress.short { width: 40%; }
+.progress.yellow { background: orange; }
+.progress.red { background: red; }
+.progress.tiny { width: 15%; }
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    .product-container {
+        padding: 25px;
+        gap: 25px;
+    }
+
+    .features {
+        gap: 20px;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+    .add-btn,
+    .go-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .rating-summary {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .product-container {
+        padding: 20px;
+    }
+
+    .price-box {
+        padding: 15px;
+    }
+
+    .add-btn,
+    .go-btn,
+    .continue-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .ratings-section {
+        padding: 20px;
+    }
+}

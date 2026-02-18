@@ -1,0 +1,74 @@
+{% extends "user/base.html" %}
+
+{% block title %}My Orders - SmartCart{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/orders.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="orders-container">
+
+    <h2>📦 My Orders</h2>
+
+    {% if orders|length == 0 %}
+        <div class="empty-orders">
+            <p>You have not placed any orders yet.</p>
+            <a href="{{ url_for('user_products') }}"
+               class="shop-btn">
+                Start Shopping
+            </a>
+        </div>
+
+    {% else %}
+
+        {% for order in orders %}
+        <div class="order-card">
+
+            <div class="order-left">
+                <h3>Order #{{ order.order_id }}</h3>
+
+                <p><strong>Amount:</strong> ₹{{ order.amount }}</p>
+                <p><strong>Date:</strong> {{ order.created_at }}</p>
+            </div>
+
+            <div class="order-right">
+
+                <span class="status-badge 
+                    {% if order.payment_status == 'Paid' %}
+                        delivered
+                    {% elif order.payment_status == 'Pending' %}
+                        pending
+                    {% else %}
+                        cancelled
+                    {% endif %}
+                ">
+                    {{ order.payment_status }}
+                </span>
+
+                <div class="order-buttons">
+
+                    <a href="{{ url_for('order_success', order_id=order.order_id) }}"
+                       class="action-btn">
+                        View Details
+                    </a>
+
+                    <a href="{{ url_for('download_invoice', order_id=order.order_id) }}"
+                       class="action-btn secondary">
+                        Download Invoice
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
