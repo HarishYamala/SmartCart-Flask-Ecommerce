@@ -15,3 +15,6 @@ smartcart.db
 
 # OS files
 .DS_Store
+
+#environment Variables
+.env

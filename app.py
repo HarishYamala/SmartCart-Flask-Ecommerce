@@ -1,19 +1,25 @@
-from flask import Flask, render_template, request, redirect, session, flash,jsonify,make_response,url_for
+from dotenv import load_dotenv
+load_dotenv()
+
+from flask import Flask, render_template, request, redirect, session, flash, jsonify, make_response, url_for
 from flask_mail import Mail, Message
 from werkzeug.utils import secure_filename
 import os
 import sqlite3
 import bcrypt
 import random
-import config
 import traceback
 import razorpay
-from utils.pdf_generator import generate_pdf
 from itsdangerous import URLSafeTimedSerializer
 
+import config
+from utils.pdf_generator import generate_pdf
 app = Flask(__name__)
-app.secret_key = config.SECRET_KEY
 
+if not config.SECRET_KEY:
+    raise ValueError("SECRET_KEY is not set in environment variables")
+
+app.secret_key = config.SECRET_KEY
 serializer = URLSafeTimedSerializer(app.secret_key)
 
 # ---------------- FILE UPLOAD CONFIG ----------------
@@ -35,6 +41,9 @@ os.makedirs(ADMIN_UPLOAD_FOLDER, exist_ok=True)
 
 
 # ---------------- EMAIL CONFIGURATION ----------------
+if not config.MAIL_USERNAME or not config.MAIL_PASSWORD:
+    raise ValueError("Mail credentials are not set")
+
 app.config['MAIL_SERVER'] = config.MAIL_SERVER
 app.config['MAIL_PORT'] = config.MAIL_PORT
 app.config['MAIL_USE_TLS'] = config.MAIL_USE_TLS
@@ -54,6 +63,9 @@ def get_db_connection():
 
 
 # ----------------  Razorpay Setup FUNCTION --------------
+
+if not config.RAZORPAY_KEY_ID or not config.RAZORPAY_KEY_SECRET:
+    raise ValueError("Razorpay keys are not set in environment variables")
 
 razorpay_client = razorpay.Client(
     auth=(config.RAZORPAY_KEY_ID, config.RAZORPAY_KEY_SECRET)
