@@ -180,11 +180,10 @@ def admin_login():
     email = request.form['email']
     password = request.form['password']
 
-    # Step 1: Check if admin email exists
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM admin WHERE email=?", (email,))
+    cursor.execute("SELECT * FROM admin WHERE email=? AND is_deleted=0", (email,))
     admin = cursor.fetchone()
 
     cursor.close()
@@ -194,10 +193,9 @@ def admin_login():
         flash("Email not found! Please register first.", "danger")
         return redirect('/admin-login')
 
-    # Step 2: Compare entered password with hashed password
+    # 🔐 Check Password
     stored_hashed_password = admin["password"]
 
-    # If stored as TEXT instead of bytes
     if isinstance(stored_hashed_password, str):
         stored_hashed_password = stored_hashed_password.encode('utf-8')
 
@@ -205,28 +203,240 @@ def admin_login():
         flash("Incorrect password! Try again.", "danger")
         return redirect('/admin-login')
 
-    # Step 3: If login success → Create admin session
+    # 🚫 Check if Blocked
+    if admin["is_blocked"] == 1:
+        flash("Your account has been blocked by Super Admin.", "danger")
+        return redirect('/admin-login')
+
+    # ⏳ Check if Approved
+    if admin["is_approved"] == 0:
+        flash("Your account is waiting for Super Admin approval.", "warning")
+        return redirect('/admin-login')
+
+    # ✅ Login Success → Store Session
     session['admin_id'] = admin['admin_id']
     session['admin_name'] = admin['name']
     session['admin_email'] = admin['email']
+    session['role'] = admin['role']   # VERY IMPORTANT
 
     flash("Login Successful!", "success")
-    return redirect('/admin-dashboard')
 
+    # 👑 Redirect Based on Role
+    if admin['role'] == 'superadmin':
+        return redirect('/superadmin-dashboard')
+    else:
+        return redirect('/admin-dashboard')
 
 # =================================================================
-# ROUTE 5: ADMIN DASHBOARD (PROTECTED ROUTE)
+# ROUTE 5: ADMIN DASHBOARD (ADMIN ONLY)
 # =================================================================
 @app.route('/admin-dashboard')
 def admin_dashboard():
 
-    # Protect dashboard → Only logged-in admin can access
     if 'admin_id' not in session:
-        flash("Please login to access dashboard!", "danger")
+        flash("Please login first!", "danger")
         return redirect('/admin-login')
 
-    # Send admin name to dashboard UI
-    return render_template("admin/dashboard.html", admin_name=session['admin_name'])
+    # 🚫 Prevent superadmin from accessing normal admin dashboard
+    if session.get("role") not in ["admin", "superadmin"]:
+        return "Access Denied", 403
+
+    return render_template(
+        "admin/dashboard.html",
+        admin_name=session['admin_name']
+    )
+
+# =================================================================
+# ROUTE 6: SUPER ADMIN DASHBOARD (SUMMARY)
+# =================================================================
+@app.route('/superadmin-dashboard')
+def superadmin_dashboard():
+
+    if 'admin_id' not in session:
+        flash("Please login first!", "danger")
+        return redirect('/admin-login')
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 🔹 Total Revenue
+    cursor.execute("""
+        SELECT SUM(amount)
+        FROM orders
+        WHERE payment_status='paid'
+    """)
+    total_revenue = cursor.fetchone()[0] or 0
+
+    # 🔹 Total Admins (FIXED)
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM admin
+        WHERE role = 'admin'
+        AND is_deleted = 0
+    """)
+    total_admins = cursor.fetchone()[0]
+
+    # 🔹 Pending Admins
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM admin
+        WHERE is_approved = 0
+        AND role = 'admin'
+        AND is_deleted = 0
+    """)
+    pending_admins = cursor.fetchone()[0]
+
+    conn.close()
+
+    return render_template(
+        "admin/super_dashboard.html",
+        total_revenue=total_revenue,
+        total_admins=total_admins,
+        pending_admins=pending_admins
+    )
+
+# =================================================================
+# MANAGE ADMINS (SUPER ADMIN ONLY)
+# =================================================================
+@app.route('/manage-admins')
+def manage_admins():
+
+    if 'admin_id' not in session:
+        return redirect('/admin-login')
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 🔹 Get all admins with revenue
+    cursor.execute("""
+        SELECT a.admin_id,
+               a.name,
+               a.email,
+               a.is_approved,
+               a.is_blocked,
+               IFNULL(SUM(oi.price * oi.quantity), 0) AS revenue
+        FROM admin a
+        LEFT JOIN products p ON a.admin_id = p.admin_id
+        LEFT JOIN order_items oi ON p.product_id = oi.product_id
+        LEFT JOIN orders o ON oi.order_id = o.order_id
+        AND o.payment_status = 'Paid'
+        WHERE a.role = 'admin' AND a.is_deleted = 0
+        GROUP BY a.admin_id
+    """)
+
+    admins = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("admin/manage_admins.html", admins=admins)
+
+# =================================================================
+# ROUTE : Approve
+# =================================================================
+
+@app.route('/approve-admin/<int:admin_id>',methods=["POST"])
+def approve_admin(admin_id):
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE admin SET is_approved=1 WHERE admin_id=?", (admin_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Admin approved successfully!", "success")
+    return redirect('/manage-admins')
+
+
+
+
+# =================================================================
+# ROUTE : Block Admin
+# =================================================================
+
+@app.route('/block-admin/<int:admin_id>', methods=['POST'])
+def block_admin(admin_id):
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE admin SET is_blocked=1 WHERE admin_id=?", (admin_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Admin blocked successfully!", "danger")
+    return redirect('/manage-admins')
+
+# =================================================================
+# ROUTE : Unblock Admin
+# =================================================================
+
+@app.route('/unblock-admin/<int:admin_id>', methods=['POST'])
+def unblock_admin(admin_id):
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("UPDATE admin SET is_blocked=0 WHERE admin_id=?", (admin_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Admin unblocked successfully!", "success")
+    return redirect('/manage-admins')
+
+# =================================================================
+# ROUTE : Delete Admin
+# =================================================================
+
+@app.route('/delete-admin/<int:admin_id>',methods=["POST"])
+def delete_admin(admin_id):
+
+    if session.get("role") != "superadmin":
+        return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # 🔹 Check revenue
+    cursor.execute("""
+        SELECT IFNULL(SUM(oi.price * oi.quantity), 0)
+        FROM products p
+        LEFT JOIN order_items oi ON p.product_id = oi.product_id
+        LEFT JOIN orders o ON oi.order_id = o.order_id
+            AND o.payment_status='Paid'
+        WHERE p.admin_id = ?
+    """, (admin_id,))
+
+    revenue = cursor.fetchone()[0]
+
+    if revenue > 0:
+        conn.close()
+        flash("Cannot delete admin with revenue history. Block instead.", "danger")
+        return redirect('/manage-admins')
+
+    # 🔹 Safe to delete
+    cursor.execute("UPDATE admin SET is_deleted=1 WHERE admin_id=?", (admin_id,))
+    conn.commit()
+    conn.close()
+
+    flash("Admin deleted successfully!", "success")
+    return redirect('/manage-admins')
+
 # =================================================================
 # ROUTE 6: ADMIN LOGOUT
 # =================================================================
@@ -241,9 +451,12 @@ def admin_logout():
     flash("Logged out successfully.", "success")
     return redirect('/admin-login')
 
+
+
 # =================================================================
-# UPDATED PRODUCT LIST WITH SEARCH + CATEGORY FILTER
+# UPDATED PRODUCT LIST (ROLE + VIEW AWARE)
 # =================================================================
+
 @app.route('/admin/item-list')
 def item_list():
 
@@ -251,34 +464,61 @@ def item_list():
         flash("Please login!", "danger")
         return redirect('/admin-login')
 
+    role = session.get("role")
     admin_id = session['admin_id']
+    view = request.args.get('view', 'all')  # mine or all
+
     search = request.args.get('search', '')
     category_filter = request.args.get('category', '')
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch categories only from this admin's products
-    cursor.execute("""
-        SELECT DISTINCT category 
-        FROM products 
-        WHERE admin_id = ?
-    """, (admin_id,))
-    categories = cursor.fetchall()
+    # ====================================================
+    # SUPERADMIN LOGIC
+    # ====================================================
+    if role == "superadmin":
 
-    # Build filtered query
-    query = """
-        SELECT * FROM products 
-        WHERE admin_id = ?
-    """
-    params = [admin_id]
+        # My Products
+        if view == "mine":
+            query = """
+                SELECT p.*, a.name AS owner_name
+                FROM products p
+                JOIN admin a ON p.admin_id = a.admin_id
+                WHERE p.admin_id = ? AND p.is_deleted = 0
+            """
+            params = [admin_id]
 
+        # All Products
+        else:
+            query = """
+                SELECT p.*, a.name AS owner_name
+                FROM products p
+                JOIN admin a ON p.admin_id = a.admin_id
+                WHERE p.is_deleted = 0
+            """
+            params = []
+
+    # ====================================================
+    # NORMAL ADMIN LOGIC
+    # ====================================================
+    else:
+        query = """
+            SELECT p.*, a.name AS owner_name
+            FROM products p
+            JOIN admin a ON p.admin_id = a.admin_id
+            WHERE p.admin_id = ? AND p.is_deleted = 0
+        """
+        params = [admin_id]
+
+    # SEARCH FILTER
     if search:
-        query += " AND name LIKE ?"
+        query += " AND p.name LIKE ?"
         params.append(f"%{search}%")
 
+    # CATEGORY FILTER
     if category_filter:
-        query += " AND category = ?"
+        query += " AND p.category = ?"
         params.append(category_filter)
 
     cursor.execute(query, params)
@@ -290,9 +530,10 @@ def item_list():
     return render_template(
         "admin/item_list.html",
         products=products,
-        categories=categories
+        role=role,
+        admin_id=admin_id,
+        view=view
     )
-
 
 # =================================================================
 # DELETE PRODUCT (DELETE DB ROW + DELETE IMAGE FILE)
@@ -332,7 +573,8 @@ def delete_item(item_id):
 
     # Delete DB record securely
     cursor.execute("""
-        DELETE FROM products 
+        UPDATE products
+        SET is_deleted=1
         WHERE product_id=? AND admin_id=?
     """, (item_id, admin_id))
 
@@ -348,13 +590,18 @@ def delete_item(item_id):
 # =================================================================
 # ROUTE 7: SHOW ADD PRODUCT PAGE (Protected Route)
 # =================================================================
+
 @app.route('/admin/add-item', methods=['GET'])
 def add_item_page():
 
-    # Only logged-in admin can access
+    # 1️⃣ Check login
     if 'admin_id' not in session:
         flash("Please login first!", "danger")
         return redirect('/admin-login')
+
+    # 2️⃣ Check role
+    if session.get("role") not in ["admin", "superadmin"]:
+        return "Access Denied", 403
 
     return render_template("admin/add_item.html")
 
@@ -364,9 +611,14 @@ def add_item_page():
 @app.route('/admin/add-item', methods=['POST'])
 def add_item():
 
+
     if 'admin_id' not in session:
         flash("Please login first!", "danger")
         return redirect('/admin-login')
+    
+    # 2️⃣ Then check role
+    if session.get("role") not in ["admin", "superadmin"]:
+        return "Access Denied", 403
 
     admin_id = session['admin_id']
 
@@ -375,6 +627,7 @@ def add_item():
     category = request.form['category']
     price = float(request.form['price'])  # Convert to float for SQLite REAL
     image_file = request.files['image']
+    quantity = int(request.form['quantity'])
 
     if image_file.filename == "":
         flash("Please upload a product image!", "danger")
@@ -389,9 +642,9 @@ def add_item():
 
     cursor.execute("""
         INSERT INTO products 
-        (name, description, category, price, image, admin_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (name, description, category, price, filename, admin_id))
+        (name, description, category, price, image,quantity, admin_id)
+        VALUES (?, ?, ?, ?, ?, ? ,?)
+    """, (name, description, category, price, filename, quantity,admin_id))
 
     conn.commit()
     cursor.close()
@@ -445,15 +698,24 @@ def update_item_page(item_id):
         flash("Please login!", "danger")
         return redirect('/admin-login')
 
+    role = session.get("role")
     admin_id = session['admin_id']
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT * FROM products 
-        WHERE product_id = ? AND admin_id = ?
-    """, (item_id, admin_id))
+    # 👑 SUPERADMIN → can fetch any product
+    if role == "superadmin":
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND is_deleted = 0
+        """, (item_id,))
+    else:
+        # 👤 NORMAL ADMIN → only their product
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND admin_id = ? AND is_deleted = 0
+        """, (item_id, admin_id))
 
     product = cursor.fetchone()
 
@@ -466,8 +728,6 @@ def update_item_page(item_id):
 
     return render_template("admin/update_item.html", product=product)
 
-
-
 # =================================================================
 # ROUTE 12: UPDATE PRODUCT + OPTIONAL IMAGE REPLACE
 # =================================================================
@@ -478,23 +738,30 @@ def update_item(item_id):
         flash("Please login!", "danger")
         return redirect('/admin-login')
 
+    role = session.get("role")
     admin_id = session['admin_id']
 
-    # 1️⃣ Get updated form data
     name = request.form['name']
     description = request.form['description']
     category = request.form['category']
-    price = float(request.form['price'])  # Convert to float
+    price = float(request.form['price'])
+    quantity = int(request.form['quantity'])
     new_image = request.files['image']
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 2️⃣ Fetch product ONLY if it belongs to this admin
-    cursor.execute("""
-        SELECT * FROM products 
-        WHERE product_id = ? AND admin_id = ?
-    """, (item_id, admin_id))
+    # 👑 SUPERADMIN → no admin restriction
+    if role == "superadmin":
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND is_deleted = 0
+        """, (item_id,))
+    else:
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND admin_id = ? AND is_deleted = 0
+        """, (item_id, admin_id))
 
     product = cursor.fetchone()
 
@@ -506,32 +773,34 @@ def update_item(item_id):
 
     old_image_name = product['image']
 
-    # 3️⃣ Handle image replacement
+    # Image replacement
     if new_image and new_image.filename != "":
-        
         new_filename = secure_filename(new_image.filename)
-
-        # Save new image
         new_image_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
         new_image.save(new_image_path)
 
-        # Delete old image
         if old_image_name:
             old_image_path = os.path.join(app.config['UPLOAD_FOLDER'], old_image_name)
             if os.path.exists(old_image_path):
                 os.remove(old_image_path)
 
         final_image_name = new_filename
-
     else:
         final_image_name = old_image_name
 
-    # 4️⃣ Secure update (only admin’s own product)
-    cursor.execute("""
-        UPDATE products
-        SET name=?, description=?, category=?, price=?, image=?, updated_at=CURRENT_TIMESTAMP
-        WHERE product_id=? AND admin_id=?
-    """, (name, description, category, price, final_image_name, item_id, admin_id))
+    # 🔥 UPDATE QUERY
+    if role == "superadmin":
+        cursor.execute("""
+            UPDATE products
+            SET name=?, description=?, category=?, price=?, quantity=?, image=?, updated_at=CURRENT_TIMESTAMP
+            WHERE product_id=?
+        """, (name, description, category, price, quantity, final_image_name, item_id))
+    else:
+        cursor.execute("""
+            UPDATE products
+            SET name=?, description=?, category=?, price=?, quantity=?, image=?, updated_at=CURRENT_TIMESTAMP
+            WHERE product_id=? AND admin_id=?
+        """, (name, description, category, price, quantity, final_image_name, item_id, admin_id))
 
     conn.commit()
     cursor.close()
@@ -539,7 +808,6 @@ def update_item(item_id):
 
     flash("Product updated successfully!", "success")
     return redirect('/admin/item-list')
-
 
 
 
@@ -1017,40 +1285,56 @@ def product_details(product_id):
 # =================================================================
 # ADD ITEM TO CART (DB VERSION)
 # =================================================================
+
 @app.route('/user/add-to-cart/<int:product_id>', methods=['POST'])
 def add_to_cart(product_id):
 
     if 'user_id' not in session:
         flash("Please login first!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     user_id = session['user_id']
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Check product exists
-    cursor.execute("SELECT * FROM products WHERE product_id=?", (product_id,))
+    # 🔹 Fetch product with quantity
+    cursor.execute("""
+        SELECT product_id, quantity 
+        FROM products 
+        WHERE product_id=?
+    """, (product_id,))
     product = cursor.fetchone()
 
     if not product:
-        cursor.close()
         conn.close()
         flash("Product not found.", "danger")
-        return redirect(url_for('user_products'))
+        return redirect('/user/products')
 
-    # Check if product already in cart
+    if product['quantity'] <= 0:
+        conn.close()
+        flash("Product is out of stock!", "danger")
+        return redirect('/user/products')
+
+    # 🔹 Check existing cart quantity
     cursor.execute("""
-        SELECT * FROM cart 
+        SELECT quantity FROM cart
         WHERE user_id=? AND product_id=?
     """, (user_id, product_id))
-
     existing = cursor.fetchone()
 
+    current_cart_qty = existing['quantity'] if existing else 0
+
+    if current_cart_qty + 1 > product['quantity']:
+        conn.close()
+        flash("Not enough stock available!", "warning")
+        return redirect('/user/products')
+
+    # 🔹 Safe to add
     if existing:
         cursor.execute("""
             UPDATE cart 
-            SET quantity = quantity + 1 
+            SET quantity = quantity + 1
             WHERE user_id=? AND product_id=?
         """, (user_id, product_id))
     else:
@@ -1060,11 +1344,10 @@ def add_to_cart(product_id):
         """, (user_id, product_id))
 
     conn.commit()
-    cursor.close()
     conn.close()
 
     flash("Item added to cart!", "success")
-    return redirect(url_for('product_details', product_id=product_id))
+    return redirect('/user/products')
 
 
 # =================================================================
@@ -1083,7 +1366,8 @@ def view_cart():
 
     cursor.execute("""
         SELECT c.product_id, c.quantity,
-               p.name, p.price, p.image
+               p.name, p.price, p.image,
+               p.quantity AS product_stock 
         FROM cart c
         JOIN products p ON c.product_id = p.product_id
         WHERE c.user_id = ?
@@ -1119,6 +1403,26 @@ def increase_quantity(pid):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # Get stock
+    cursor.execute("SELECT quantity FROM products WHERE product_id=?", (pid,))
+    product = cursor.fetchone()
+
+    # Get cart quantity
+    cursor.execute("""
+        SELECT quantity FROM cart
+        WHERE user_id=? AND product_id=?
+    """, (session['user_id'], pid))
+    cart_item = cursor.fetchone()
+
+    if not product or not cart_item:
+        conn.close()
+        return redirect('/user/cart')
+
+    if cart_item['quantity'] >= product['quantity']:
+        conn.close()
+        flash("Stock limit reached!", "warning")
+        return redirect('/user/cart')
+
     cursor.execute("""
         UPDATE cart
         SET quantity = quantity + 1
@@ -1126,12 +1430,9 @@ def increase_quantity(pid):
     """, (session['user_id'], pid))
 
     conn.commit()
-    cursor.close()
     conn.close()
 
     return redirect('/user/cart')
-
-
 
 # =================================================================
 # DECREASE QUANTITY
@@ -1374,43 +1675,45 @@ def verify_payment():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1️⃣ FETCH CART
-    cursor.execute("""
-        SELECT c.product_id, c.quantity,
-               p.name, p.price
-        FROM cart c
-        JOIN products p ON c.product_id = p.product_id
-        WHERE c.user_id = ?
-    """, (user_id,))
-    cart_items = cursor.fetchall()
-
-    if not cart_items:
-        cursor.close()
-        conn.close()
-        flash("Cart is empty.", "danger")
-        return redirect('/user/products')
-
-    # 2️⃣ CHECK USER ADDRESS EXISTS
-    cursor.execute("""
-        SELECT * FROM user_addresses
-        WHERE user_id = ?
-    """, (user_id,))
-    address = cursor.fetchone()
-
-    if not address:
-        cursor.close()
-        conn.close()
-        flash("Please add delivery address first.", "warning")
-        return redirect('/user/address')
-
-    # 3️⃣ Calculate total
-    total_amount = sum(
-        float(item['price']) * int(item['quantity'])
-        for item in cart_items
-    )
-
     try:
-        # 4️⃣ Insert order (NO address snapshot — normalized design)
+        # 🔒 START TRANSACTION
+        conn.execute("BEGIN")
+
+        # 1️⃣ Fetch cart with latest stock
+        cursor.execute("""
+            SELECT c.product_id, c.quantity,
+                   p.name, p.price, p.quantity AS stock
+            FROM cart c
+            JOIN products p ON c.product_id = p.product_id
+            WHERE c.user_id = ?
+        """, (user_id,))
+        cart_items = cursor.fetchall()
+
+        if not cart_items:
+            raise Exception("Cart empty")
+
+        # 2️⃣ CHECK STOCK BEFORE ORDER
+        for item in cart_items:
+            if item['quantity'] > item['stock']:
+                raise Exception(f"Insufficient stock for {item['name']}")
+
+        # 3️⃣ CHECK ADDRESS
+        cursor.execute("""
+            SELECT * FROM user_addresses
+            WHERE user_id = ?
+        """, (user_id,))
+        address = cursor.fetchone()
+
+        if not address:
+            raise Exception("Address missing")
+
+        # 4️⃣ Calculate total
+        total_amount = sum(
+            float(item['price']) * int(item['quantity'])
+            for item in cart_items
+        )
+
+        # 5️⃣ Insert order
         cursor.execute("""
             INSERT INTO orders (
                 user_id,
@@ -1425,13 +1728,15 @@ def verify_payment():
             razorpay_order_id,
             razorpay_payment_id,
             total_amount,
-            'paid'
+            'Paid'
         ))
 
         order_db_id = cursor.lastrowid
 
-        # 5️⃣ Insert order items
+        # 6️⃣ Insert order items + Reduce stock
         for item in cart_items:
+
+            # Insert item
             cursor.execute("""
                 INSERT INTO order_items
                 (order_id, product_id, product_name, quantity, price)
@@ -1444,7 +1749,14 @@ def verify_payment():
                 item['price']
             ))
 
-        # 6️⃣ Clear cart
+            # 🔥 Reduce stock safely
+            cursor.execute("""
+                UPDATE products
+                SET quantity = quantity - ?
+                WHERE product_id = ?
+            """, (item['quantity'], item['product_id']))
+
+        # 7️⃣ Clear cart
         cursor.execute("DELETE FROM cart WHERE user_id=?", (user_id,))
 
         conn.commit()
@@ -1454,15 +1766,13 @@ def verify_payment():
 
     except Exception as e:
         conn.rollback()
-        app.logger.error("Order saving failed: %s", str(e))
-        flash("Error saving order.", "danger")
+        app.logger.error("Order failed: %s", str(e))
+        flash(str(e), "danger")
         return redirect('/user/cart')
 
     finally:
         cursor.close()
         conn.close()
-
-
 
 # =================================================================
 # Route: Order Success Page

@@ -1,0 +1,15 @@
+.footer {
+    width: 100%;
+    background: #1a33c7;
+    color: white;
+    padding-top: 40px;
+}
+
+.footer p,
+.footer small {
+    color: rgba(255,255,255,0.8);
+}
+
+.footer .border-top {
+    border-color: rgba(255,255,255,0.2) !important;
+}

@@ -8,7 +8,7 @@ venv/
 env/
 
 # SQLite database
-smartcart.db
+*.db
 
 # Logs
 *.log

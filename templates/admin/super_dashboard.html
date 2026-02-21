@@ -1,0 +1,52 @@
+{% extends "admin/base.html" %}
+{% block title %}Super Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-4">Welcome, Super Admin 👑</h3>
+
+<div class="row g-4">
+
+    <!-- 💰 Total Revenue -->
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <i class="bi bi-currency-rupee fs-1 text-success"></i>
+                <h6 class="mt-3 text-muted">Total Platform Revenue</h6>
+                <h4 class="text-success fw-bold">₹ {{ total_revenue }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- 👥 Total Admins -->
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1 text-primary"></i>
+                <h6 class="mt-3 text-muted">Total Admins</h6>
+                <h4 class="fw-bold">{{ total_admins }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⏳ Pending Approvals -->
+    <div class="col-12 col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <i class="bi bi-clock-history fs-1 text-warning"></i>
+                <h6 class="mt-3 text-muted">Pending Approvals</h6>
+                <h4 class="text-warning fw-bold">{{ pending_admins }}</h4>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ⚙ Manage Admins Button -->
+<div class="mt-5 text-center">
+    <a href="/manage-admins" class="btn btn-primary px-4">
+        <i class="bi bi-gear"></i> Manage Admins
+    </a>
+</div>
+
+{% endblock %}

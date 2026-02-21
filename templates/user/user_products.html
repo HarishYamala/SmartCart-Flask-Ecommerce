@@ -33,7 +33,14 @@
     {% for product in products %}
     <div class="product-card">
 
-        <div class="badge">Trending</div>
+        <!-- 🔥 LOW STOCK BADGE -->
+        {% if product.quantity > 0 and product.quantity <= 5 %}
+            <div class="badge" style="background-color:#ffc107;color:#000;">
+                Only {{ product.quantity }} left!
+            </div>
+        {% else %}
+            <div class="badge">Trending</div>
+        {% endif %}
 
         <img src="{{ url_for('static', filename='uploads/product_images/' + product.image) }}"
              alt="{{ product.name }}">
@@ -46,7 +53,20 @@
 
         <p class="price">₹{{ product.price }}</p>
 
-        <!-- ✅ FIXED ROUTE NAME HERE -->
+        <!-- 🔥 STOCK STATUS -->
+        <p style="margin:6px 0;">
+            {% if product.quantity > 0 %}
+                <span style="color:green;font-weight:600;">
+                    In Stock ({{ product.quantity }} left)
+                </span>
+            {% else %}
+                <span style="color:red;font-weight:700;">
+                    Out of Stock
+                </span>
+            {% endif %}
+        </p>
+
+        <!-- VIEW PRODUCT BUTTON -->
         <a href="{{ url_for('product_details', product_id=product.product_id) }}"
            class="view-btn">
             View Product

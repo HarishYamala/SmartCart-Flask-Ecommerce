@@ -50,19 +50,41 @@
             </div>
         </div>
 
-        <!-- STOCK -->
-        <p class="stock">
-            ✔ In Stock ({{ product.stock }})
+        <!-- 🔥 STOCK STATUS -->
+        <p class="stock" style="margin-top:10px; font-weight:600;">
+            {% if product.quantity > 0 %}
+                <span style="color:green;">
+                    ✔ In Stock ({{ product.quantity }} left)
+                </span>
+            {% else %}
+                <span style="color:red;">
+                    ✖ Out of Stock
+                </span>
+            {% endif %}
         </p>
+
+        {% if product.quantity > 0 and product.quantity <= 5 %}
+            <p style="color:#ff9800;font-weight:600;">
+                Hurry! Only {{ product.quantity }} remaining.
+            </p>
+        {% endif %}
 
         <!-- BUTTONS -->
         <div class="buttons">
+
+            {% if product.quantity > 0 %}
             <form action="{{ url_for('add_to_cart', product_id=product.product_id) }}"
                   method="POST">
                 <button class="add-btn">
                     ⚡ Add to Cart
                 </button>
             </form>
+            {% else %}
+            <button class="add-btn" disabled
+                    style="background:#999;cursor:not-allowed;">
+                Out of Stock
+            </button>
+            {% endif %}
 
             <a href="{{ url_for('view_cart') }}"
                class="go-btn">

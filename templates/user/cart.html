@@ -33,16 +33,36 @@
             <div class="cart-details">
                 <h3>{{ item.name }}</h3>
                 <p>Price: ₹{{ item.price }}</p>
+
+                <!-- 🔥 STOCK WARNING -->
+                {% if item.quantity > item.product_stock %}
+                    <p style="color:red;font-weight:600;">
+                        Stock reduced! Only {{ item.product_stock }} available.
+                    </p>
+                {% elif item.product_stock <= 5 %}
+                    <p style="color:#ff9800;font-weight:600;">
+                        Only {{ item.product_stock }} left in stock!
+                    </p>
+                {% endif %}
             </div>
 
+            <!-- 🔥 QUANTITY CONTROL -->
             <div class="quantity-box">
+
                 <a href="{{ url_for('decrease_quantity', pid=pid) }}"
                    class="qty-btn minus">-</a>
 
                 <span>{{ item.quantity }}</span>
 
-                <a href="{{ url_for('increase_quantity', pid=pid) }}"
-                   class="qty-btn plus">+</a>
+                {% if item.quantity < item.product_stock %}
+                    <a href="{{ url_for('increase_quantity', pid=pid) }}"
+                       class="qty-btn plus">+</a>
+                {% else %}
+                    <button class="qty-btn plus"
+                            style="background:#ccc;cursor:not-allowed;"
+                            disabled>+</button>
+                {% endif %}
+
             </div>
 
             <div class="item-total">
@@ -68,7 +88,6 @@
                 ← Continue Shopping
             </a>
 
-            <!-- 🔥 IMPORTANT CHANGE HERE -->
             <a href="{{ url_for('user_address') }}"
                class="pay-btn">
                 Proceed to Address →
