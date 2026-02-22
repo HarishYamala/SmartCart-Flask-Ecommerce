@@ -133,31 +133,45 @@ def verify_otp_get():
 # ---------------------------------------------------------
 @app.route('/verify-otp', methods=['POST'])
 def verify_otp_post():
-    
-    # User submitted OTP + Password
+
+    SUPER_ADMIN_EMAIL = os.environ.get("SUPER_ADMIN_EMAIL")
+    signup_email = session['signup_email']
+
+    # Decide role
+    if signup_email == SUPER_ADMIN_EMAIL:
+        role = "super_admin"
+        is_approved = 1
+    else:
+        role = "admin"
+        is_approved = 0
+
     user_otp = request.form['otp']
     password = request.form['password']
 
-    # Compare OTP
     if str(session.get('otp')) != str(user_otp):
         flash("Invalid OTP. Try again!", "danger")
         return redirect('/verify-otp')
 
-    # Hash password using bcrypt
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    # Insert admin into database
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO admin (name, email, password) VALUES (?, ?, ?)",
-        (session['signup_name'], session['signup_email'], hashed_password)
-    )
+
+    cursor.execute("""
+        INSERT INTO admin (name, email, password, role, is_approved)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        session['signup_name'],
+        signup_email,
+        hashed_password,
+        role,
+        is_approved
+    ))
+
     conn.commit()
     cursor.close()
     conn.close()
 
-    # Clear temporary session data
     session.pop('otp', None)
     session.pop('signup_name', None)
     session.pop('signup_email', None)
@@ -1188,7 +1202,7 @@ def user_login():
 def user_home():
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1213,7 +1227,7 @@ def user_home():
 def user_products():
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     search = request.args.get('search')
     category = request.args.get('category')
@@ -1261,7 +1275,7 @@ def user_products():
 def product_details(product_id):
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1357,7 +1371,7 @@ def add_to_cart(product_id):
 def view_cart():
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     user_id = session['user_id']
 
@@ -1398,7 +1412,7 @@ def view_cart():
 def increase_quantity(pid):
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1442,7 +1456,7 @@ def increase_quantity(pid):
 def decrease_quantity(pid):
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1475,7 +1489,7 @@ def decrease_quantity(pid):
 def remove_from_cart(pid):
 
     if 'user_id' not in session:
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1566,7 +1580,7 @@ def user_pay():
 
     if 'user_id' not in session:
         flash("Please login!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     user_id = session['user_id']
 
@@ -1647,7 +1661,7 @@ def verify_payment():
 
     if 'user_id' not in session:
         flash("Please login to complete the payment.", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     razorpay_payment_id = request.form.get('razorpay_payment_id')
     razorpay_order_id = request.form.get('razorpay_order_id')
@@ -1782,7 +1796,7 @@ def order_success(order_id):
 
     if 'user_id' not in session:
         flash("Please login!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1825,7 +1839,7 @@ def order_success(order_id):
 def my_orders():
     if 'user_id' not in session:
         flash("Please login!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1852,7 +1866,7 @@ def user_address():
 
     if 'user_id' not in session:
         flash("Please login!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     user_id = session['user_id']
     conn = get_db_connection()
@@ -1912,7 +1926,7 @@ def download_invoice(order_id):
 
     if 'user_id' not in session:
         flash("Please login!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -2010,7 +2024,7 @@ This link expires in 30 minutes.
         mail.send(msg)
 
         flash("Reset link sent to your email!", "success")
-        return redirect('/user-login')
+        return redirect('/')
 
     return render_template(
         "user/forgot.html",
@@ -2034,7 +2048,7 @@ def reset_password(token):
         )
     except:
         flash("Reset link expired or invalid!", "danger")
-        return redirect('/user-login')
+        return redirect('/')
 
     if request.method == 'POST':
 
@@ -2059,7 +2073,7 @@ def reset_password(token):
         conn.close()
 
         flash("Password updated successfully!", "success")
-        return redirect('/user-login')
+        return redirect('/')
 
     return render_template(
         'user/reset.html',
@@ -2099,6 +2113,17 @@ def user_logout():
 
 
 
+# ---------------------------------------------------------
+# Disable browser caching for protected pages
+# ---------------------------------------------------------
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 # ------------------------- RUN APP ------------------------
 if __name__ == '__main__':
     app.run(debug=True)
+

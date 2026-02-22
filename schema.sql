@@ -1,14 +1,25 @@
+-- =========================================================
 -- ADMIN TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS admin (
     admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    profile_image TEXT
+
+    role TEXT DEFAULT 'admin',
+    is_approved INTEGER DEFAULT 0,
+    is_blocked INTEGER DEFAULT 0,
+    is_deleted INTEGER DEFAULT 0,
+    commission_percentage REAL DEFAULT 10,
+
+    profile_image TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- =========================================================
 -- USERS TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -22,7 +33,9 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- =========================================================
 -- PRODUCTS TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS products (
     product_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -30,14 +43,21 @@ CREATE TABLE IF NOT EXISTS products (
     category TEXT,
     price REAL NOT NULL,
     image TEXT,
+
+    quantity INTEGER DEFAULT 0,
     is_active INTEGER DEFAULT 1,
+    is_deleted INTEGER DEFAULT 0,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     admin_id INTEGER NOT NULL,
     FOREIGN KEY (admin_id) REFERENCES admin(admin_id) ON DELETE CASCADE
 );
 
+-- =========================================================
 -- CART TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS cart (
     cart_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -48,7 +68,9 @@ CREATE TABLE IF NOT EXISTS cart (
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
+-- =========================================================
 -- ORDERS TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS orders (
     order_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
@@ -56,11 +78,14 @@ CREATE TABLE IF NOT EXISTS orders (
     razorpay_payment_id TEXT,
     amount REAL,
     payment_status TEXT,
+    order_status TEXT DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- =========================================================
 -- ORDER ITEMS TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS order_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     order_id INTEGER NOT NULL,
@@ -72,7 +97,9 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
 );
 
+-- =========================================================
 -- USER ADDRESSES TABLE
+-- =========================================================
 CREATE TABLE IF NOT EXISTS user_addresses (
     address_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,

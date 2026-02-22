@@ -10,4 +10,4 @@ razorpay
 
 requests
 
-sqlite3 
+xhtml2pdf
