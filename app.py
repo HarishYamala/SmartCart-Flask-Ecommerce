@@ -222,7 +222,7 @@ def admin_login():
     flash("Login Successful!", "success")
 
     # 👑 Redirect Based on Role
-    if admin['role'] == 'superadmin':
+    if admin['role'] == 'super_admin':
         return redirect('/superadmin-dashboard')
     else:
         return redirect('/admin-dashboard')
@@ -238,7 +238,7 @@ def admin_dashboard():
         return redirect('/admin-login')
 
     # 🚫 Prevent superadmin from accessing normal admin dashboard
-    if session.get("role") not in ["admin", "superadmin"]:
+    if session.get("role") not in ["admin", "super_admin"]:
         return "Access Denied", 403
 
     return render_template(
@@ -256,7 +256,7 @@ def superadmin_dashboard():
         flash("Please login first!", "danger")
         return redirect('/admin-login')
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -307,7 +307,7 @@ def manage_admins():
     if 'admin_id' not in session:
         return redirect('/admin-login')
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -343,7 +343,7 @@ def manage_admins():
 @app.route('/approve-admin/<int:admin_id>',methods=["POST"])
 def approve_admin(admin_id):
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -366,7 +366,7 @@ def approve_admin(admin_id):
 @app.route('/block-admin/<int:admin_id>', methods=['POST'])
 def block_admin(admin_id):
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -386,7 +386,7 @@ def block_admin(admin_id):
 @app.route('/unblock-admin/<int:admin_id>', methods=['POST'])
 def unblock_admin(admin_id):
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -406,7 +406,7 @@ def unblock_admin(admin_id):
 @app.route('/delete-admin/<int:admin_id>',methods=["POST"])
 def delete_admin(admin_id):
 
-    if session.get("role") != "superadmin":
+    if session.get("role") != "super_admin":
         return "Access Denied", 403
 
     conn = get_db_connection()
@@ -477,7 +477,7 @@ def item_list():
     # ====================================================
     # SUPERADMIN LOGIC
     # ====================================================
-    if role == "superadmin":
+    if role == "super_admin":
 
         # My Products
         if view == "mine":
@@ -600,7 +600,7 @@ def add_item_page():
         return redirect('/admin-login')
 
     # 2️⃣ Check role
-    if session.get("role") not in ["admin", "superadmin"]:
+    if session.get("role") not in ["admin", "super_admin"]:
         return "Access Denied", 403
 
     return render_template("admin/add_item.html")
@@ -617,7 +617,7 @@ def add_item():
         return redirect('/admin-login')
     
     # 2️⃣ Then check role
-    if session.get("role") not in ["admin", "superadmin"]:
+    if session.get("role") not in ["admin", "super_admin"]:
         return "Access Denied", 403
 
     admin_id = session['admin_id']
@@ -705,7 +705,7 @@ def update_item_page(item_id):
     cursor = conn.cursor()
 
     # 👑 SUPERADMIN → can fetch any product
-    if role == "superadmin":
+    if role == "super_admin":
         cursor.execute("""
             SELECT * FROM products 
             WHERE product_id = ? AND is_deleted = 0
@@ -752,7 +752,7 @@ def update_item(item_id):
     cursor = conn.cursor()
 
     # 👑 SUPERADMIN → no admin restriction
-    if role == "superadmin":
+    if role == "super_admin":
         cursor.execute("""
             SELECT * FROM products 
             WHERE product_id = ? AND is_deleted = 0
@@ -789,7 +789,7 @@ def update_item(item_id):
         final_image_name = old_image_name
 
     # 🔥 UPDATE QUERY
-    if role == "superadmin":
+    if role == "super_admin":
         cursor.execute("""
             UPDATE products
             SET name=?, description=?, category=?, price=?, quantity=?, image=?, updated_at=CURRENT_TIMESTAMP
