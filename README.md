@@ -1,63 +1,122 @@
-# 🛒 SmartCart – Flask E-Commerce Web Application
+🛒 SmartCart – Multi-Vendor Flask E-Commerce Platform
 
-SmartCart is a full-featured E-commerce web application built using **Flask + SQLite**.  
-It supports complete shopping workflow including authentication, cart management, payments, and invoice generation.
+SmartCart is a full-featured Multi-Vendor E-commerce Web Application built using Flask + SQLite.
+It supports complete shopping workflow including authentication, cart management, payments, role-based access control, and invoice generation.
 
----
+🚀 Core Features
+👑 Super Admin System
 
-## 🚀 Features
+Environment-based Super Admin assignment
 
-### 👨‍💼 Admin Panel
-- Admin Registration with OTP verification
-- Secure Login (bcrypt hashing)
-- Add / Update / Delete Products
-- Image Upload Handling
-- Profile Management
-- Password Reset via Email
+Approve / Block / Delete Admins
 
-### 👤 User System
-- User Registration with OTP
-- Secure Login System
-- Forgot Password & Reset Flow
-- Session-based Authentication
+View Total Platform Revenue
 
-### 🛍 Product & Cart
-- Product Browsing & Search
-- Category Filtering
-- Add to Cart (AJAX + DB based)
-- Increase / Decrease Quantity
-- Remove Items
-- Persistent Cart (Database stored)
+View Individual Admin Revenue
 
-### 💳 Payment Integration
-- Razorpay Test Mode Integration
-- Secure Payment Verification
-- Digital Signature Validation
+Role-based dashboard redirection
 
-### 📦 Orders
-- Order Creation & Storage
-- Order Items Tracking
-- Order History Page
-- Downloadable PDF Invoice
-- Address Management System
+Protected routes with session validation
 
----
+Super Admin email is configured via environment variable (SUPER_ADMIN_EMAIL)
 
-## 🛠 Tech Stack
+👨‍💼 Admin Panel (Multi-Vendor)
 
-- **Backend:** Flask (Python)
-- **Database:** SQLite
-- **Authentication:** bcrypt
-- **Payment Gateway:** Razorpay
-- **Email Service:** Flask-Mail (SMTP)
-- **PDF Generation:** Custom HTML → PDF
-- **Frontend:** HTML, CSS, Jinja2
+Admin Registration with OTP verification
 
----
+Secure Login (bcrypt hashing)
 
-## 📂 Project Structure
+Role-based access (admin / super_admin)
 
-```
+Product Management (Add / Update / Soft Delete)
+
+Image Upload Handling
+
+Profile Management (Image + Password Update)
+
+Password Reset via Email
+
+Inventory Tracking (Quantity Control)
+
+👤 User System
+
+User Registration with OTP
+
+Secure Login System
+
+Forgot Password & Reset Flow
+
+Session-based Authentication
+
+Cache-safe logout (Back-button protected)
+
+🛍 Product & Cart
+
+Product Browsing & Search
+
+Category Filtering
+
+Add to Cart (Database-based)
+
+Increase / Decrease Quantity
+
+Remove Items
+
+Persistent Cart (DB stored)
+
+Soft-delete product handling
+
+💳 Payment Integration
+
+Razorpay Test Mode Integration
+
+Secure Payment Verification
+
+Digital Signature Validation
+
+Order Status Tracking
+
+📦 Orders & Invoice
+
+Order Creation & Storage
+
+Order Items Tracking
+
+Order History Page
+
+Downloadable PDF Invoice
+
+Address Management System
+
+🛠 Tech Stack
+
+Backend: Flask (Python)
+
+Database: SQLite (Raw SQL – No ORM)
+
+Authentication: bcrypt
+
+Payment Gateway: Razorpay
+
+Email Service: Flask-Mail (SMTP)
+
+PDF Generation: HTML → PDF
+
+Frontend: HTML, CSS, Jinja2
+
+🔐 Role-Based Architecture
+Role	Access Level
+User	Shop & Order
+Admin	Manage Own Products
+Super Admin	Manage Admins + View Platform Analytics
+
+Role is assigned dynamically during registration:
+
+SUPER_ADMIN_EMAIL=your_email@gmail.com
+
+If admin registers using this email → automatically becomes super_admin.
+
+📂 Project Structure
 SmartCart-Flask-Ecommerce/
 │
 ├── app.py
@@ -68,92 +127,87 @@ SmartCart-Flask-Ecommerce/
 ├── templates/
 ├── static/
 └── utils/
-```
 
----
+Database schema is centralized in schema.sql
+No migration or upgrade script required.
 
-## ⚙ Installation (Local Setup)
-
-1️⃣ Clone the repository:
-
-```
+⚙ Local Installation
+1️⃣ Clone Repository
 git clone https://github.com/HarishYamala/SmartCart-Flask-Ecommerce.git
 cd SmartCart-Flask-Ecommerce
-```
-
-2️⃣ Create virtual environment:
-
-```
+2️⃣ Create Virtual Environment
 python -m venv venv
 source venv/Scripts/activate   # Windows
-```
-
-3️⃣ Install dependencies:
-
-```
+3️⃣ Install Dependencies
 pip install -r requirements.txt
-```
+4️⃣ Set Environment Variables
 
-4️⃣ Initialize database:
+Create .env file:
 
-```
+SECRET_KEY=your_secret
+MAIL_USERNAME=your_email
+MAIL_PASSWORD=your_password
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
+SUPER_ADMIN_EMAIL=your_email
+5️⃣ Initialize Database
 python init_db.py
-```
-
-5️⃣ Run the app:
-
-```
+6️⃣ Run Application
 python app.py
-```
 
 Visit:
 
-```
 http://127.0.0.1:5000
-```
+🌍 Deployment Ready
 
----
+Fully compatible with PythonAnywhere
 
-## 🔐 Environment Variables Required
+Environment-based configuration
 
-Set the following before running:
+No hardcoded credentials
 
-- SECRET_KEY
-- MAIL_USERNAME
-- MAIL_PASSWORD
-- RAZORPAY_KEY_ID
-- RAZORPAY_KEY_SECRET
+No manual database edits required
 
----
+Clone → Run → Works
 
-## 🎯 Key Highlights
+🛡 Security Highlights
 
-✔ Raw SQL (No ORM used)  
-✔ MySQL → SQLite Migration  
-✔ Secure Password Hashing  
-✔ Payment Gateway Integration  
-✔ PDF Invoice System  
-✔ Clean MVC Structure  
-✔ Production-ready architecture  
+✔ bcrypt password hashing
+✔ Session-based role validation
+✔ Cache-control headers to prevent back-button access
+✔ Soft delete strategy (data integrity)
+✔ Environment variable based secrets
 
----
+📈 Platform Capabilities
 
-## 📌 Future Improvements
+Multi-vendor structure
 
-- Multi-address support
-- Order status tracking
-- Admin analytics dashboard
-- Docker deployment
-- Production deployment on cloud
+Revenue aggregation
 
----
+Admin performance tracking
 
-## 👨‍💻 Author
+Order analytics foundation ready
 
-**Harish Yamala**  
-Aspiring Data Analyst & Backend Developer  
+Easily extendable to PostgreSQL
+
+📌 Future Enhancements
+
+Sales analytics charts
+
+Commission calculation automation
+
+Admin payout system
+
+REST API version
+
+Docker containerization
+
+Cloud deployment (AWS / Render / Railway)
+
+👨‍💻 Author
+
+Harish Yamala
+Aspiring Backend Developer & Data Analyst
 GitHub: https://github.com/HarishYamala
-
----
 
 ⭐ If you like this project, give it a star!
