@@ -27,8 +27,8 @@
 
         <!-- Brand -->
         <a class="navbar-brand fw-bold"
-           href="{% if session.get('role') == 'superadmin' %}
-                    /superadmin-dashboard
+           href="{% if session.get('role') == 'super_admin' %}
+                    /super_admin-dashboard
                  {% else %}
                     /admin-dashboard
                  {% endif %}">
@@ -48,10 +48,10 @@
             <ul class="navbar-nav align-items-center gap-3">
 
                 <!-- 👑 SUPER ADMIN -->
-                {% if session.get('role') == 'superadmin' %}
+                {% if session.get('role') == 'super_admin' %}
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/superadmin-dashboard">
+                    <a class="nav-link" href="/super_admin-dashboard">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
                 </li>
