@@ -241,8 +241,9 @@ def admin_login():
     else:
         return redirect('/admin-dashboard')
 
+
 # =================================================================
-# ROUTE 5: ADMIN DASHBOARD (ADMIN ONLY)
+# ROUTE 5: ADMIN DASHBOARD (ADMIN + SUPER ADMIN)
 # =================================================================
 @app.route('/admin-dashboard')
 def admin_dashboard():
@@ -251,13 +252,51 @@ def admin_dashboard():
         flash("Please login first!", "danger")
         return redirect('/admin-login')
 
-    # 🚫 Prevent superadmin from accessing normal admin dashboard
-    if session.get("role") not in ["admin", "super_admin"]:
+    role = session.get("role")
+    admin_id = session['admin_id']
+
+    if role not in ["admin", "super_admin"]:
         return "Access Denied", 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # ============================================
+    # 👑 SUPER ADMIN → Entire Platform Revenue
+    # ============================================
+    if role == "super_admin":
+        cursor.execute("""
+            SELECT IFNULL(SUM(oi.price * oi.quantity), 0)
+            FROM order_items oi
+            JOIN orders o ON oi.order_id = o.order_id
+            WHERE o.payment_status = 'Paid'
+        """)
+        revenue_label = "Total Platform Revenue"
+
+    # ============================================
+    # 👤 NORMAL ADMIN → Only Their Revenue
+    # ============================================
+    else:
+        cursor.execute("""
+            SELECT IFNULL(SUM(oi.price * oi.quantity), 0)
+            FROM products p
+            LEFT JOIN order_items oi ON p.product_id = oi.product_id
+            LEFT JOIN orders o ON oi.order_id = o.order_id
+            WHERE p.admin_id = ?
+            AND o.payment_status = 'Paid'
+        """, (admin_id,))
+        revenue_label = "Your Total Revenue"
+
+    total_revenue = cursor.fetchone()[0] or 0
+
+    conn.close()
 
     return render_template(
         "admin/dashboard.html",
-        admin_name=session['admin_name']
+        admin_name=session['admin_name'],
+        total_revenue=total_revenue,
+        revenue_label=revenue_label,
+        role=role
     )
 
 # =================================================================
@@ -278,9 +317,10 @@ def superadmin_dashboard():
 
     # 🔹 Total Revenue
     cursor.execute("""
-        SELECT SUM(amount)
-        FROM orders
-        WHERE payment_status='paid'
+        SELECT IFNULL(SUM(oi.price * oi.quantity), 0)
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
+        WHERE o.payment_status = 'Paid'
     """)
     total_revenue = cursor.fetchone()[0] or 0
 
@@ -680,27 +720,59 @@ def view_item(item_id):
         return redirect('/admin-login')
 
     admin_id = session['admin_id']
+    role = session.get("role")
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT * FROM products 
-        WHERE product_id = ? AND admin_id = ?
-    """, (item_id, admin_id))
+    # 👑 SUPER ADMIN → Can view ANY product
+    if role == "super_admin":
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND is_deleted = 0
+        """, (item_id,))
+    else:
+        # 👤 NORMAL ADMIN → Only their product
+        cursor.execute("""
+            SELECT * FROM products 
+            WHERE product_id = ? AND admin_id = ? AND is_deleted = 0
+        """, (item_id, admin_id))
 
     product = cursor.fetchone()
+
+    if not product:
+        cursor.close()
+        conn.close()
+        flash("Unauthorized access!", "danger")
+        return redirect('/admin/item-list')
+
+    # 🔹 Stock Sold (Paid orders only)
+    cursor.execute("""
+        SELECT IFNULL(SUM(oi.quantity), 0)
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
+        WHERE oi.product_id = ?
+        AND o.payment_status = 'Paid'
+    """, (item_id,))
+
+    stock_sold = cursor.fetchone()[0] or 0
+
+    # 🔹 Remaining stock (admin-updated value)
+    remaining_stock = product['quantity']
+
+    # 🔹 Total stock ever available
+    total_stock = remaining_stock + stock_sold
 
     cursor.close()
     conn.close()
 
-    if not product:
-        flash("Unauthorized access!", "danger")
-        return redirect('/admin/item-list')
-
-    return render_template("admin/view_item.html", product=product)
-
-
+    return render_template(
+        "admin/view_item.html",
+        product=product,
+        total_stock=total_stock,
+        stock_sold=stock_sold,
+        remaining_stock=remaining_stock
+    )
 
 # =================================================================
 # ROUTE 11: SHOW UPDATE FORM WITH EXISTING DATA
@@ -2112,6 +2184,31 @@ def user_logout():
     return redirect('/')
 
 
+# ============================================
+# GLOBAL CART COUNT (DB VERSION)
+# ============================================
+@app.context_processor
+def inject_cart_count():
+
+    if 'user_id' not in session:
+        return dict(cart_count=0)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM cart
+        WHERE user_id=?
+    """, (session['user_id'],))
+
+    row = cursor.fetchone()
+    count = row["count"] if row else 0
+
+    cursor.close()
+    conn.close()
+
+    return dict(cart_count=count)
 
 # ---------------------------------------------------------
 # Disable browser caching for protected pages

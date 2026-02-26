@@ -167,3 +167,162 @@ body {
         font-size: 14px;
     }
 }
+
+.product-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.view-btn {
+    background-color: #2f5ae0;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.view-btn:hover {
+    background-color: #1e40c9;
+}
+
+.cart-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cart-btn:hover {
+    background-color: #218838;
+}
+
+.disabled-btn {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.inline-form {
+    flex: 1;
+    margin: 0;
+}
+
+.btn-ui {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s ease;
+    border: none;
+}
+
+/* View Button */
+.btn-view {
+    background-color: #f0f2f5;
+    color: #333;
+    text-decoration: none;
+}
+
+.btn-view:hover {
+    background-color: #e2e6ea;
+}
+
+/* Add Button */
+.btn-cart {
+    background-color: #2f5ae0;
+    color: white;
+}
+
+.btn-cart:hover {
+    background-color: #2448c5;
+    transform: translateY(-1px);
+}
+
+/* Disabled */
+.btn-disabled {
+    background-color: #ccc;
+    color: white;
+    cursor: not-allowed;
+}
+
+/* ================= STOCK COLORS ================= */
+
+.in-stock {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.out-stock {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+/* ================= PRODUCT ACTION BUTTONS ================= */
+
+.product-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.product-actions form {
+    margin: 0;
+}
+
+/* Common button style */
+.btn-view,
+.btn-add,
+.btn-disabled {
+    padding: 9px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    transition: 0.25s ease;
+}
+
+/* 🔵 View Button - Blue */
+.btn-view {
+    background-color: #2f6fed;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-view:hover {
+    background-color: #1f56d8;
+    transform: translateY(-2px);
+}
+
+/* 🟢 Add Button - Green */
+.btn-add {
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-add:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+/* 🔘 Disabled */
+.btn-disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}

@@ -5,8 +5,28 @@
 <h3 class="mb-4">Welcome, {{ admin_name }} 👋</h3>
 
 <div class="row g-4">
+
+    <!-- Revenue Card -->
+    <div class="col-12 col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <i class="bi bi-currency-rupee fs-1 text-warning"></i>
+                <h5 class="mt-3">
+                    {% if role == "super_admin" %}
+                        Total Platform Revenue
+                    {% else %}
+                        Your Total Revenue
+                    {% endif %}
+                </h5>
+                <p class="display-6 fw-bold text-success">
+                    ₹ {{ total_revenue }}
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- Products Card -->
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-3">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-box-seam fs-1 text-primary"></i>
@@ -20,7 +40,7 @@
     </div>
 
     <!-- Add Product Card -->
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-3">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-plus-circle fs-1 text-success"></i>
@@ -34,7 +54,7 @@
     </div>
 
     <!-- Logout Card -->
-    <div class="col-12 col-md-4">
+    <div class="col-12 col-md-3">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <i class="bi bi-box-arrow-right fs-1 text-danger"></i>
@@ -46,5 +66,6 @@
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

@@ -29,23 +29,31 @@
 
         {% if session.get('user_id') %}
 
+            <!-- Profile -->
             <a href="{{ url_for('user_home') }}" class="icon-circle">
                 <i class="fa fa-user"></i>
             </a>
 
-            <a href="{{ url_for('view_cart') }}" class="icon-circle cart-icon">
+            <!-- Cart -->
+            <a href="{{ url_for('view_cart') }}"
+               class="icon-circle cart-icon position-relative">
+
                 <i class="fa fa-shopping-cart"></i>
-                {% if session.get('cart') %}
+
+                {% if cart_count > 0 %}
                     <span class="cart-count">
-                        {{ session['cart']|length }}
+                        {{ cart_count }}
                     </span>
                 {% endif %}
+
             </a>
 
+            <!-- Orders -->
             <a href="/user/my-orders" class="icon-circle">
                 <i class="fa fa-box"></i>
             </a>
 
+            <!-- Logout -->
             <a href="/user-logout" class="icon-circle">
                 <i class="fa fa-sign-out-alt"></i>
             </a>

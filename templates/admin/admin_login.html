@@ -19,9 +19,10 @@
                 Login to your SmartCart Admin panel
             </p>
 
+            <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% for category, message in messages %}
-                <div class="alert alert-danger text-center">
+                <div class="alert alert-{{ category }} alert-dismissible fade show text-center flash-message">
                     {{ message }}
                 </div>
               {% endfor %}
@@ -47,7 +48,7 @@
                            required>
                 </div>
 
-                <!-- Forgot Password RIGHT SIDE -->
+                <!-- Forgot Password -->
                 <div class="text-end mb-3">
                     <a href="/admin-forgot-password"
                        class="text-decoration-none small">
@@ -78,5 +79,17 @@
         </div>
     </div>
 </div>
+
+<!-- Auto Hide Flash Messages After 5 Seconds -->
+<script>
+    setTimeout(function () {
+        let alerts = document.querySelectorAll(".flash-message");
+        alerts.forEach(function(alert) {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+</script>
 
 {% endblock %}

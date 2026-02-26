@@ -47,5 +47,57 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
+<!-- ============================= -->
+<!-- 📊 STOCK OVERVIEW SECTION -->
+<!-- ============================= -->
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="mb-4">📦 Stock Overview</h5>
+
+                <div class="row text-center">
+
+                    <!-- Total Stock -->
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-muted">Total Stock</h6>
+                            <h4 class="fw-bold">{{ total_stock }}</h4>
+                        </div>
+                    </div>
+
+                    <!-- Stock Sold -->
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-muted">Stock Sold</h6>
+                            <h4 class="fw-bold text-success">{{ stock_sold }}</h4>
+                        </div>
+                    </div>
+
+                    <!-- Remaining Stock -->
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 border rounded">
+                            <h6 class="text-muted">Remaining Stock</h6>
+
+                            {% if remaining_stock <= 5 %}
+                                <h4 class="fw-bold text-danger">
+                                    {{ remaining_stock }} ⚠ Low Stock
+                                </h4>
+                            {% else %}
+                                <h4 class="fw-bold text-primary">
+                                    {{ remaining_stock }}
+                                </h4>
+                            {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

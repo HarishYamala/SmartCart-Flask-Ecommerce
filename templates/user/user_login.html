@@ -16,10 +16,13 @@
             <h2>Welcome Back</h2>
             <p>Login to your SmartCart account</p>
 
+            <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
                 {% for category, message in messages %}
-                  <div class="flash-msg">{{ message }}</div>
+                  <div class="flash-msg flash-message {{ category }}">
+                      {{ message }}
+                  </div>
                 {% endfor %}
               {% endif %}
             {% endwith %}
@@ -61,5 +64,17 @@
         </div>
     </div>
 </div>
+
+<!-- Auto Hide Flash Messages After 5 Seconds -->
+<script>
+    setTimeout(function () {
+        let alerts = document.querySelectorAll(".flash-message");
+        alerts.forEach(function(alert) {
+            alert.style.transition = "opacity 0.5s ease";
+            alert.style.opacity = "0";
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 5000);
+</script>
 
 {% endblock %}
