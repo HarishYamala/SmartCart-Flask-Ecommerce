@@ -1433,7 +1433,7 @@ def add_to_cart(product_id):
     conn.close()
 
     flash("Item added to cart!", "success")
-    return redirect('/user/products')
+    return redirect(request.referrer)
 
 
 # =================================================================
